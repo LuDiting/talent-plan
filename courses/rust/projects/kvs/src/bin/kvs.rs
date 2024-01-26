@@ -1,45 +1,58 @@
 use std::process::exit;
 
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(name = env!("CARGO_PKG_NAME"))]
+#[command(author = env!("CARGO_PKG_AUTHORS"))]
+#[command(version = env!("CARGO_PKG_VERSION"))]
+#[command(about = env!("CARGO_PKG_DESCRIPTION"))]
+#[command(arg_required_else_help(true))]
+struct Cli {
+    name: Option<String>,
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Set{
+        key :String,
+        value :String,
+    },
+    Get{
+        key :String,
+    },
+    Rm{
+        key :String,
+    },
+}
 
 fn main() {
-    let m = App::new(env!("CARGO_PKG_NAME"))
-        .author(env!("CARGO_PKG_AUTHORS"))
-        .version(env!("CARGO_PKG_VERSION"))
-        .about(env!("CARGO_PKG_DESCRIPTION"))
-        .setting(AppSettings::DisableHelpSubcommand)
-        .setting(AppSettings::SubcommandRequiredElseHelp)
-        .subcommands(vec![
-            SubCommand::with_name("set")
-                .about("Set string key and value")
-                .args(&[
-                    Arg::with_name("KEY").help("A string key").required(true),
-                    Arg::with_name("VALUE")
-                        .help("A string value")
-                        .required(true),
-                ]),
-            SubCommand::with_name("get")
-                .about("Get string value of a key")
-                .arg(Arg::with_name("KEY").help("A string key").required(true)),
-            SubCommand::with_name("rm")
-                .about("remove key and value")
-                .arg(Arg::with_name("KEY").help("A string key").required(true)),
-        ])
-        .get_matches();
+    let cli = Cli::parse();
 
-    match m.subcommand() {
-        ("set", Some(_m)) => {
-            eprintln!("unimplemented");
-            exit(1);
-        }
-        ("get", Some(_m)) => {
-            eprintln!("unimplemented");
-            exit(1);
-        }
-        ("rm", Some(_m)) => {
-            eprintln!("unimplemented");
-            exit(1);
-        }
-        _ => unreachable!(),
+    // You can check the value provided by positional arguments, or option arguments
+    if let Some(name) = cli.name.as_deref() {
+        println!("Value for name: {name}");
     }
+
+    // You can check for the existence of subcommands, and if found use their
+    // matches just as you would the top level cmd
+    match &cli.command {
+        Some(Commands::Set { key, value }) => {
+            eprintln!("unimplemented");
+            exit(1);
+        },
+        Some(Commands::Get { key }) => {
+            eprintln!("unimplemented");
+            exit(1);
+        },
+        Some(Commands::Rm { key }) => {
+            eprintln!("unimplemented");
+            exit(1);
+        }
+        None => {}
+    }
+
+    // Continued program logic goes here...
 }
